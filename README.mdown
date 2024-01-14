@@ -1,0 +1,145 @@
+# Recruitment task
+
+This project is a Django-based application that retrieves and processes currency exchange rates from the NBP API,
+storing the data in a CSV file.
+
+## Installation
+
+### Requirements
+
+- Python 3.x
+- Docker
+- Docker Compose
+
+### Setup
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/piasekps/blockwise.git
+    cd blockwise
+    ```
+
+2. Create a virtual environment (optional but recommended):
+
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3. Install dependencies:
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Docker Setup
+
+If you prefer to use Docker, follow these steps:
+
+1. Build and run Docker containers:
+
+    ```bash
+    docker-compose up --build
+    ```
+
+2. Access the application at [http://localhost:8000](http://localhost:8000/currencies/rates/)
+
+## Running the Server
+
+1. If not using Docker:
+
+    ```bash
+    python manage.py runserver
+    ```
+
+2. Access the application at [http://localhost:8000](http://localhost:8000/currencies/rates/)
+
+3. To load data to CSV without waiting for task enter container bash and run Django-shell:
+   ```bash
+   docker exec -it blockwise_currency python manage.py shell
+   ```
+   Inside Django shell import task and execute it:
+
+   ```python
+   from currency.tasks import fetch_currency_data_task
+   fetch_currency_data_task()
+   ```
+   New csv file will be created with data.
+
+## Description
+The project is a Django application that fetches and processes currency exchange rates from the NBP API for specified
+currencies against the Polish Zloty (PLN). The data is stored in a CSV file named "all_currency_data.csv." The
+application uses Celery for background task processing and Django Celery Beat for scheduling tasks.
+
+### Components
+1. CurrencyDataHandlerCSV: Handles loading, saving, and processing currency data stored in a CSV file.
+
+2. NBPAPIClient: A client for fetching currency exchange rates from the NBP API.
+
+3. Celery Tasks: Includes a Celery task (fetch_currency_data_task) scheduled to run daily at 12:00 PM to fetch and
+process currency data.
+
+### Reflection
+In this project, the utilization of abstract classes serves as a crucial element in achieving a flexible and extensible
+design. By employing abstract classes, the codebase is structured to accommodate diverse currency providers
+and various methods of data storage. This approach enables seamless replacement of both currency handlers and clients
+with minimal effort.
+
+Abstract classes contribute to the future-proofing of the project by providing a structured foundation that supports
+extensibility. As the project evolves and new requirements emerge, developers can easily introduce additional
+functionality by extending the abstract classes. This extensibility ensures that the codebase remains adaptable
+to changing circumstances, making it a robust and scalable solution for handling currency data.
+
+In summary, the judicious use of abstract classes in this project not only establishes a consistent and well-defined
+structure for currency data handling but also empowers the application to effortlessly incorporate different currency
+providers and data storage solutions, enhancing its versatility and future-proofing capabilities.
+
+
+# Recruitment task
+
+### Fetching Currency Data:
+
+- Utilizing the website https://api.nbp.pl/ and Python, retrieve exchange rates for EUR/PLN, USD/PLN, and CHF/PLN
+for the last 90 days.
+- Save this data in separate columns. Additionally, create two more columns containing the EUR/USD and CHF/USD rates,
+calculated based on the retrieved data.
+
+### Data Selection:
+
+- Allow the user to input the name of the currency pairs they wish to access information for. Ideally, enable the user
+to specify multiple currency pairs.
+- Filter the data to only include rows relevant to the chosen currency pairs.
+
+### Saving Data:
+
+- Save all the previously mentioned data (dates and rates for five pairs) into a CSV file named "all_currency_data.csv".
+- Develop a function to permit the saving of only the user-selected currency pairs to
+a CSV file named "selected_currency_data.csv".
+    - The CSV should retain the columns from the original file but only for the currencies selected by the user.
+    - Store the filtered data in the CSV file.
+
+### User Interaction:
+
+- After saving the data, display a confirmation message such as "Data for [Currency] has been saved!"
+
+### Error Handling:
+
+- Create and implement appropriate error handling mechanisms for potential issues that might arise during
+the execution of the script. Ensure that the user is informed in a user-friendly manner about any errors that occur.
+
+### Data Analysis:
+
+- Develop a Python function that calculates and displays the average rate value, median, minimum, and maximum for
+the selected currency pair.
+
+### Add:
+
+- Implement functionality for the script to run daily at 12:00 PM and automatically save the data to
+the "all_currency_data.csv" file. Ensure that each script execution overwrites the file only with new entries.
+
+### Reflection:
+
+- Describe in text why you decided to perform the task in the chosen way. Provide insights into your
+decision-making process, the rationale behind your choices, and any considerations or trade-offs you made.
+This will help in understanding your approach and thought process.

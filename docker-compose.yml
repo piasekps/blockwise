@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  currency:
+    container_name: blockwise_currency
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: blockwise_currency
+    command: python manage.py runserver 0.0.0.0:8000
+    # stdin_open and tty allows to attach and use interactive terminal
+    stdin_open: true
+    tty: true
+    working_dir: /app/blockwise
+    volumes:
+      - .:/app/blockwise
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      BROKER_URI: "redis://redis:6379/0"
+  celery:
+    image: blockwise_currency
+    container_name: blockwise_celery
+    command: celery -A blockwise worker --beat -s /var/tmp/celerybeat-schedule --loglevel=debug
+    # stdin_open and tty allows to attach and use interactive terminal
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app/blockwise
+    depends_on:
+      - currency
+  celery-beat:
+    container_name: blockwise_beat
+    build: .
+    command: celery -A blockwise beat -l info
+    # stdin_open and tty allows to attach and use interactive terminal
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app/blockwise
+    depends_on:
+      - currency
+  redis:
+    container_name: blockwise_redis
+    image: "redis:alpine"
+    ports:
+      - "6379"
